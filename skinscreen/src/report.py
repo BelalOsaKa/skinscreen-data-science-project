@@ -1,0 +1,183 @@
+"""Related-work comparison table and an auto-generated Markdown results report."""
+from __future__ import annotations
+
+import numpy as np
+import pandas as pd
+
+from . import config
+from .utils import _rel, log, save_table
+
+# Published results on PAD-UFES-20. Numbers are as reported by each paper;
+# protocols differ (image split vs patient split, CNNs on raw pixels, binary vs
+# 6-class), so the comparison is indicative only.
+# !! Verify every number against the original paper before submitting. !!
+RELATED_WORK = [
+    {"work": "Pacheco et al., Data in Brief 2020 (dataset paper)",
+     "method": "Dataset release; baselines in companion paper (Pacheco & Krohling, CIBM 2020)",
+     "data": "images + metadata", "task": "6-class",
+     "reported result": "see Pacheco & Krohling 2020 (ResNet + metadata concatenation)",
+     "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7479321/"},
+    {"work": "Yin et al., 2022",
+     "method": "Dense CNN with metadata fusion",
+     "data": "images + metadata", "task": "6-class",
+     "reported result": "balanced accuracy 81.4%",
+     "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9806866/"},
+    {"work": "Diffusion models for skin & oral cancer, 2025 (arXiv 2504.00026)",
+     "method": "Diffusion-based classifier",
+     "data": "images", "task": "6-class / binary",
+     "reported result": "balanced accuracy 64.6% (6-class), 83.6% (binary)",
+     "source": "https://arxiv.org/abs/2504.00026"},
+    {"work": "MiSC, Multimedia Tools & Applications 2025",
+     "method": "EfficientNet-B4, late fusion with metadata",
+     "data": "images (+ metadata)", "task": "6-class",
+     "reported result": "accuracy 79.4% image-only; +9.8 points with metadata",
+     "source": "https://link.springer.com/article/10.1007/s11042-025-20951-7"},
+    {"work": "AI-driven early detection (Authorea preprint, 2025)",
+     "method": "EfficientNet-B3 / ResNet-50 + multimodal fusion",
+     "data": "images + metadata", "task": "6-class",
+     "reported result": "accuracy 82.5% (EffNet-B3), 78.2% (ResNet-50)",
+     "source": "https://www.authorea.com/doi/10.22541/au.175883262.22698597"},
+    {"work": "Islam et al., 2026",
+     "method": "EfficientNet-B2 + DER + metadata",
+     "data": "images + metadata", "task": "cancer vs non-cancer",
+     "reported result": "sensitivity 99.5%, specificity 74.7%",
+     "source": "https://aru.figshare.com/articles/journal_contribution/Advancing_skin_cancer_detection_"
+               "through_deep_learning_and_fusion_of_patient_metadata_and_skin_lesion_images/31267051"},
+]
+
+
+def related_work_table(ours: dict) -> pd.DataFrame:
+    rows = list(RELATED_WORK)
+    rows.append({
+        "work": "This project (Phase 1)",
+        "method": f"{ours['model']} on hand-crafted image + clinical features, "
+                  f"{ours['selection']} feature selection",
+        "data": "images + metadata (patient-level split)", "task": "6-class",
+        "reported result": (f"accuracy {ours['accuracy']:.1%}, balanced accuracy "
+                            f"{ours['bacc']:.1%}, macro-F1 {ours['f1']:.3f}, "
+                            f"AUC {ours['auc']:.3f}"),
+        "source": "this repository"})
+    tbl = pd.DataFrame(rows)
+    save_table(tbl, "related_work_comparison", index=False)
+    return tbl
+
+
+def _md(df: pd.DataFrame, floatfmt=".3f") -> str:
+    try:
+        return df.to_markdown(floatfmt=floatfmt)
+    except ImportError:  # tabulate missing
+        return "```\n" + df.to_string() + "\n```"
+
+
+def _most_confused(cm: np.ndarray, top: int = 4) -> list[str]:
+    cmn = cm / np.maximum(cm.sum(1, keepdims=True), 1)
+    np.fill_diagonal(cmn, 0)
+    flat = np.dstack(np.unravel_index(np.argsort(cmn.ravel())[::-1], cmn.shape))[0][:top]
+    C = config.CLASSES
+    return [f"{C[i]} predicted as {C[j]}: {cmn[i, j]:.0%} of true {C[i]} ({cm[i, j]} images)"
+            for i, j in flat if cmn[i, j] > 0]
+
+
+SIMILAR_PAIRS = [("ACK", "SCC"), ("NEV", "MEL"), ("BCC", "SCC"), ("SEK", "NEV")]
+
+
+def _similar_pairs_note(cm: np.ndarray) -> str:
+    """Share of all errors that fall between clinically look-alike classes."""
+    C = config.CLASSES
+    errors = cm.sum() - np.trace(cm)
+    if errors == 0:
+        return "- No misclassifications on the test set."
+    sim = sum(cm[C.index(a), C.index(b)] + cm[C.index(b), C.index(a)] for a, b in SIMILAR_PAIRS)
+    pairs = ", ".join(f"{a}<->{b}" for a, b in SIMILAR_PAIRS)
+    return (f"- {sim / errors:.0%} of all errors fall between clinically look-alike pairs "
+            f"({pairs}); compare with the class overlap in the t-SNE/UMAP maps.")
+
+
+def write_report(results: dict) -> None:
+    """Write outputs/REPORT.md, summarising every phase with interpretation."""
+    ev = results["evaluation"]
+    best = ev["best"]
+    hold, cv = ev["holdout"], ev["cv"]
+    b = hold.loc[best]
+    pc = ev["per_class"]
+
+    lines = [
+        "# SkinScreen - Phase 1 results (auto-generated)",
+        "",
+        "Generated by `run_pipeline.py`. Figures are in `outputs/figures/`, tables in `outputs/tables/`.",
+        "",
+        "## 1. Dataset",
+        _md(results["overview"]),
+        "",
+        "Class distribution:",
+        _md(results["class_counts"]),
+        "",
+        "Patient-level 80/20 split (no patient appears in both sets):",
+        _md(results["split"]),
+        "",
+        "## 2. Linear feature reduction",
+        _md(results["linear_summary"]),
+        "",
+        "## 3. Non-linear feature reduction (2-D embedding quality)",
+        "Trustworthiness = how well local neighbourhoods are preserved; kNN balanced accuracy = how "
+        "separable the diagnoses are in the 2-D map.",
+        "",
+        _md(results["nonlinear_quality"]),
+        "",
+        "Reduction used as preprocessing (fit on train, test on 20 % hold-out):",
+        _md(results["downstream"]),
+        "",
+        "## 4. Clustering before / after reduction (KMeans, k = 6)",
+        _md(results["clustering"].xs("KMeans", level="algorithm")),
+        "",
+        "## 5. Feature selection",
+        f"Subset chosen for the final models (best inner-CV score on the training set): **{results['best_subset']}**.",
+        "",
+        _md(results["fs_comparison"]),
+        "",
+        "## 6. Models: k-fold cross-validation (training portion, patient-grouped)",
+        _md(cv[[c for c in cv.columns if "mean" in c or "std" in c]]),
+        "",
+        "## 7. Hold-out test set (20 %): all metrics",
+        _md(hold[[c for c in hold.columns if c.startswith("test ")]]
+            .rename(columns=lambda c: c.replace("test ", ""))),
+        "",
+        "Over/under-fitting diagnosis (train vs test balanced accuracy):",
+        _md(hold[["train balanced accuracy", "test balanced accuracy", "fit diagnosis"]]),
+        "",
+        f"## 8. Best model: {best}",
+        f"- Accuracy **{b['test accuracy']:.3f}**, error rate {b['test error rate']:.3f}, "
+        f"balanced accuracy **{b['test balanced accuracy']:.3f}**",
+        f"- Macro precision {b['test precision (macro)']:.3f}, recall {b['test recall (macro)']:.3f}, "
+        f"F1 {b['test F1 (macro)']:.3f}; ROC-AUC (OvR macro) {b['test ROC-AUC (OvR macro)']:.3f}",
+        f"- Cancer referral view: sensitivity {b['test cancer sensitivity']:.3f}, "
+        f"specificity {b['test cancer specificity']:.3f}, AUC {b['test cancer ROC-AUC']:.3f}",
+        f"- Fit: {b['fit diagnosis']}",
+        "",
+        "Per-class results:",
+        _md(pc),
+        "",
+        "### Confusion-matrix interpretation",
+        "Most frequent confusions:",
+        *[f"- {s}" for s in _most_confused(ev["best_cm"])],
+        "",
+        f"- Easiest class: **{pc['recall'].idxmax()}** (recall {pc['recall'].max():.2f}); "
+        f"hardest: **{pc['recall'].idxmin()}** (recall {pc['recall'].min():.2f}).",
+        _similar_pairs_note(ev["best_cm"]),
+        "- Accuracy is inflated by the two majority classes (BCC, ACK); balanced accuracy and macro-F1 "
+        "are the fairer summary under the 16:1 imbalance.",
+        "",
+        "## 9. Clinical vs image vs fusion",
+        _md(results["modality"][["accuracy", "balanced accuracy", "F1 (macro)",
+                                 "ROC-AUC (OvR macro)", "cancer sensitivity"]]),
+        "",
+        "## 10. Comparison with related work",
+        "Protocols differ (most papers fine-tune CNNs on raw pixels and split by image, not by patient), "
+        "so numbers are indicative. **Verify every literature number against the source before submission.**",
+        "",
+        _md(results["related"].set_index("work"), floatfmt="s"),
+        "",
+    ]
+    path = config.OUTPUT_DIR / "REPORT.md"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    log(f"Report written to {_rel(path)}")

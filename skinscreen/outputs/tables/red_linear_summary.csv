@@ -1,0 +1,4 @@
+method,type,var. explained by 2 comps,comps for 95% var
+PCA,"unsupervised, linear",0.3358686232934728,40
+LDA,"supervised, linear (max C-1=5 comps)",0.7784528184998771,n/a
+SVD,"unsupervised, linear, no centring",0.33577715374177913,41

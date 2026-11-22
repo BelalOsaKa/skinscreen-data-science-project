@@ -1,0 +1,9 @@
+,value
+images,2298
+patients,1373
+lesions,1641
+clinical_features,21
+numeric,4
+categorical,4
+binary,13
+rows_with_any_missing,1308

@@ -1,0 +1,6 @@
+,accuracy,error rate,balanced accuracy,precision (macro),recall (macro),F1 (macro),precision (weighted),recall (weighted),F1 (weighted),specificity (macro),MCC,Cohen kappa,ROC-AUC (OvR macro),ROC-AUC (OvR weighted),cancer sensitivity,cancer specificity,cancer ROC-AUC
+Clinical data only,0.6587,0.3413,0.7196,0.6098,0.7196,0.628,0.7406,0.6587,0.6797,0.9315,0.5745,0.5631,0.9116,0.9078,0.9083,0.814,0.9393
+Image features only,0.4652,0.5348,0.4161,0.4052,0.4161,0.3909,0.564,0.4652,0.4891,0.8906,0.3319,0.3217,0.7837,0.7932,0.6606,0.7727,0.7867
+Early fusion (all features),0.6913,0.3087,0.7064,0.6666,0.7064,0.6735,0.7485,0.6913,0.7108,0.9359,0.6028,0.596,0.9271,0.9232,0.9128,0.8554,0.9505
+Early fusion + feature selection,0.6761,0.3239,0.6843,0.6306,0.6843,0.6377,0.7551,0.6761,0.6996,0.9346,0.5925,0.5819,0.9176,0.9136,0.9266,0.8264,0.9451
+Late fusion (mean probabilities),0.6413,0.3587,0.6346,0.5732,0.6346,0.5829,0.7172,0.6413,0.6662,0.9274,0.5451,0.5371,0.9056,0.9009,0.8624,0.8306,0.9269
