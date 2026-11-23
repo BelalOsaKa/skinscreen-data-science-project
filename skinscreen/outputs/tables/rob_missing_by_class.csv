@@ -1,0 +1,7 @@
+diagnosis,metadata present,metadata missing,% missing,cancer
+ACK,283,447,61.2,False
+BCC,845,0,0.0,True
+MEL,52,0,0.0,True
+NEV,75,169,69.3,False
+SCC,192,0,0.0,True
+SEK,47,188,80.0,False

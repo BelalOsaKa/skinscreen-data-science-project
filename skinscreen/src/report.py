@@ -7,42 +7,43 @@ import pandas as pd
 from . import config
 from .utils import _rel, log, save_table
 
-# Published results on PAD-UFES-20. Numbers are as reported by each paper;
-# protocols differ (image split vs patient split, CNNs on raw pixels, binary vs
-# 6-class), so the comparison is indicative only.
-# !! Verify every number against the original paper before submitting. !!
+# Published results on PAD-UFES-20 (6 classes). Numbers were checked against
+# each paper (November 2026). Protocols differ: most papers fine-tune CNNs on
+# raw pixels and use 5-fold CV without stating a patient-level split, so the
+# comparison is indicative only. Islam et al. (Sci. Rep. 2026), MiSC (MTAP
+# 2025) and the Authorea preprint were removed: the first uses a private UK
+# dataset, the other two could not be verified.
 RELATED_WORK = [
-    {"work": "Pacheco et al., Data in Brief 2020 (dataset paper)",
-     "method": "Dataset release; baselines in companion paper (Pacheco & Krohling, CIBM 2020)",
-     "data": "images + metadata", "task": "6-class",
-     "reported result": "see Pacheco & Krohling 2020 (ResNet + metadata concatenation)",
-     "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7479321/"},
-    {"work": "Yin et al., 2022",
-     "method": "Dense CNN with metadata fusion",
-     "data": "images + metadata", "task": "6-class",
-     "reported result": "balanced accuracy 81.4%",
+    {"work": "Pacheco & Krohling, Comput. Biol. Med. 2020",
+     "method": "ResNet-50 + clinical data (concatenation)",
+     "data": "images + metadata (earlier PAD version, 1,612 images)", "split": "5-fold CV",
+     "reported result": "accuracy 78.8%, balanced accuracy 75.0% (images only: BACC 64.9%)",
+     "source": "https://arxiv.org/abs/1909.12912"},
+    {"work": "Pacheco & Krohling (MetaBlock), as reported by de Lima & Krohling",
+     "method": "EfficientNet-B4 + MetaBlock attention fusion",
+     "data": "images + metadata", "split": "5-fold CV",
+     "reported result": "balanced accuracy 77.0% \u00b1 1.6, AUC 0.944",
+     "source": "https://arxiv.org/abs/2205.15442"},
+    {"work": "de Lima & Krohling, arXiv 2022",
+     "method": "PiT-S vision transformer + MetaBlock",
+     "data": "images + metadata", "split": "5-fold CV",
+     "reported result": "balanced accuracy 80.0% \u00b1 0.6, AUC 0.941",
+     "source": "https://arxiv.org/abs/2205.15442"},
+    {"work": "Yin et al., Front. Oncol. 2022",
+     "method": "DenseNet-169 + MD-Net metadata fusion",
+     "data": "images + metadata", "split": "3:1 split (patient grouping not stated)",
+     "reported result": "accuracy 79.6%, balanced accuracy 81.4%, AUC 0.956",
      "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9806866/"},
-    {"work": "Diffusion models for skin & oral cancer, 2025 (arXiv 2504.00026)",
-     "method": "Diffusion-based classifier",
-     "data": "images", "task": "6-class / binary",
-     "reported result": "balanced accuracy 64.6% (6-class), 83.6% (binary)",
+    {"work": "Tang et al., arXiv 2023 (JIF-MMFA)",
+     "method": "EfficientNet + joint-individual fusion attention",
+     "data": "images + metadata", "split": "stratified 5-fold CV",
+     "reported result": "balanced accuracy 79.8% \u00b1 1.4 (images only, average of 5 CNNs: 67.0%)",
+     "source": "https://arxiv.org/abs/2312.04189"},
+    {"work": "Uliana & Krohling, arXiv 2025",
+     "method": "Diffusion-model classifier",
+     "data": "images only", "split": "not stated in abstract",
+     "reported result": "balanced accuracy 64.6% (6-class), 83.6% (cancer vs non-cancer)",
      "source": "https://arxiv.org/abs/2504.00026"},
-    {"work": "MiSC, Multimedia Tools & Applications 2025",
-     "method": "EfficientNet-B4, late fusion with metadata",
-     "data": "images (+ metadata)", "task": "6-class",
-     "reported result": "accuracy 79.4% image-only; +9.8 points with metadata",
-     "source": "https://link.springer.com/article/10.1007/s11042-025-20951-7"},
-    {"work": "AI-driven early detection (Authorea preprint, 2025)",
-     "method": "EfficientNet-B3 / ResNet-50 + multimodal fusion",
-     "data": "images + metadata", "task": "6-class",
-     "reported result": "accuracy 82.5% (EffNet-B3), 78.2% (ResNet-50)",
-     "source": "https://www.authorea.com/doi/10.22541/au.175883262.22698597"},
-    {"work": "Islam et al., 2026",
-     "method": "EfficientNet-B2 + DER + metadata",
-     "data": "images + metadata", "task": "cancer vs non-cancer",
-     "reported result": "sensitivity 99.5%, specificity 74.7%",
-     "source": "https://aru.figshare.com/articles/journal_contribution/Advancing_skin_cancer_detection_"
-               "through_deep_learning_and_fusion_of_patient_metadata_and_skin_lesion_images/31267051"},
 ]
 
 
@@ -52,7 +53,7 @@ def related_work_table(ours: dict) -> pd.DataFrame:
         "work": "This project (Phase 1)",
         "method": f"{ours['model']} on hand-crafted image + clinical features, "
                   f"{ours['selection']} feature selection",
-        "data": "images + metadata (patient-level split)", "task": "6-class",
+        "data": "images + metadata", "split": "patient-level 80/20 hold-out",
         "reported result": (f"accuracy {ours['accuracy']:.1%}, balanced accuracy "
                             f"{ours['bacc']:.1%}, macro-F1 {ours['f1']:.3f}, "
                             f"AUC {ours['auc']:.3f}"),

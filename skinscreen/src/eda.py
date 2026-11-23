@@ -180,4 +180,7 @@ def run_eda(df: pd.DataFrame, report: pd.DataFrame) -> None:
     plot_correlation(df)
     plot_patients(df)
     plot_image_quality(df)
-    plot_sample_images(df)
+    if df["image_path"].notna().any():
+        plot_sample_images(df)
+    else:
+        log("  no image files found: sample-image figure skipped (cached features used)")
