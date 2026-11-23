@@ -1,8 +1,8 @@
-work,method,data,task,reported result,source
-"Pacheco et al., Data in Brief 2020 (dataset paper)","Dataset release; baselines in companion paper (Pacheco & Krohling, CIBM 2020)",images + metadata,6-class,see Pacheco & Krohling 2020 (ResNet + metadata concatenation),https://pmc.ncbi.nlm.nih.gov/articles/PMC7479321/
-"Yin et al., 2022",Dense CNN with metadata fusion,images + metadata,6-class,balanced accuracy 81.4%,https://pmc.ncbi.nlm.nih.gov/articles/PMC9806866/
-"Diffusion models for skin & oral cancer, 2025 (arXiv 2504.00026)",Diffusion-based classifier,images,6-class / binary,"balanced accuracy 64.6% (6-class), 83.6% (binary)",https://arxiv.org/abs/2504.00026
-"MiSC, Multimedia Tools & Applications 2025","EfficientNet-B4, late fusion with metadata",images (+ metadata),6-class,accuracy 79.4% image-only; +9.8 points with metadata,https://link.springer.com/article/10.1007/s11042-025-20951-7
-"AI-driven early detection (Authorea preprint, 2025)",EfficientNet-B3 / ResNet-50 + multimodal fusion,images + metadata,6-class,"accuracy 82.5% (EffNet-B3), 78.2% (ResNet-50)",https://www.authorea.com/doi/10.22541/au.175883262.22698597
-"Islam et al., 2026",EfficientNet-B2 + DER + metadata,images + metadata,cancer vs non-cancer,"sensitivity 99.5%, specificity 74.7%",https://aru.figshare.com/articles/journal_contribution/Advancing_skin_cancer_detection_through_deep_learning_and_fusion_of_patient_metadata_and_skin_lesion_images/31267051
-This project (Phase 1),"Logistic Regression on hand-crafted image + clinical features, Metaheuristic: GA feature selection",images + metadata (patient-level split),6-class,"accuracy 67.6%, balanced accuracy 68.4%, macro-F1 0.638, AUC 0.918",this repository
+work,method,data,split,reported result,source
+"Pacheco & Krohling, Comput. Biol. Med. 2020",ResNet-50 + clinical data (concatenation),"images + metadata (earlier PAD version, 1,612 images)",5-fold CV,"accuracy 78.8%, balanced accuracy 75.0% (images only: BACC 64.9%)",https://arxiv.org/abs/1909.12912
+"Pacheco & Krohling (MetaBlock), as reported by de Lima & Krohling",EfficientNet-B4 + MetaBlock attention fusion,images + metadata,5-fold CV,"balanced accuracy 77.0% ± 1.6, AUC 0.944",https://arxiv.org/abs/2205.15442
+"de Lima & Krohling, arXiv 2022",PiT-S vision transformer + MetaBlock,images + metadata,5-fold CV,"balanced accuracy 80.0% ± 0.6, AUC 0.941",https://arxiv.org/abs/2205.15442
+"Yin et al., Front. Oncol. 2022",DenseNet-169 + MD-Net metadata fusion,images + metadata,3:1 split (patient grouping not stated),"accuracy 79.6%, balanced accuracy 81.4%, AUC 0.956",https://pmc.ncbi.nlm.nih.gov/articles/PMC9806866/
+"Tang et al., arXiv 2023 (JIF-MMFA)",EfficientNet + joint-individual fusion attention,images + metadata,stratified 5-fold CV,"balanced accuracy 79.8% ± 1.4 (images only, average of 5 CNNs: 67.0%)",https://arxiv.org/abs/2312.04189
+"Uliana & Krohling, arXiv 2025",Diffusion-model classifier,images only,not stated in abstract,"balanced accuracy 64.6% (6-class), 83.6% (cancer vs non-cancer)",https://arxiv.org/abs/2504.00026
+This project (Phase 1),"Logistic Regression on hand-crafted image + clinical features, Metaheuristic: GA feature selection",images + metadata,patient-level 80/20 hold-out,"accuracy 67.6%, balanced accuracy 68.4%, macro-F1 0.638, AUC 0.918",this repository

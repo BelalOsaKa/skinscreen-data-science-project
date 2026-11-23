@@ -8,6 +8,7 @@ Usage
     python run_pipeline.py --cnn                # + ResNet-50 embeddings (needs torch)
     python run_pipeline.py --smote              # SMOTE inside the training folds
     python run_pipeline.py --skip eda reduction # skip some phases
+    python run_pipeline.py --no-images          # only metadata.csv + cached image features
 
 Phases: eda, reduction, clustering, selection, models (always), report (always)
 """
@@ -41,6 +42,8 @@ def parse_args():
     p.add_argument("--fast", action="store_true", help="smaller searches for a quick check")
     p.add_argument("--cnn", action="store_true", help="add ResNet-50 image embeddings")
     p.add_argument("--smote", action="store_true", help="SMOTE oversampling inside training folds")
+    p.add_argument("--no-images", action="store_true",
+                   help="run without the image files, using outputs/cache/image_features.csv")
     p.add_argument("--skip", nargs="*", default=[],
                    choices=["eda", "reduction", "clustering", "selection"])
     return p.parse_args()
@@ -54,7 +57,7 @@ def main():
 
     # ------------------------------------------------------------------ data
     with timer("Data loading + image features"):
-        df, miss_report = load_dataset(args.data_dir)
+        df, miss_report = load_dataset(args.data_dir, require_images=not args.no_images)
         df, image_cols = attach_image_features(df, use_cnn=args.cnn)
     ind_cols = missing_indicator_cols(df)
     classes = config.CLASSES

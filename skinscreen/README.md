@@ -59,11 +59,34 @@ Results: `outputs/figures/*.png`, `outputs/tables/*.csv`, and a summary with int
 - **Image features:** colour moments in RGB/HSV/Lab, HSV histograms, GLCM texture, LBP, and
   Otsu-segmented lesion shape and colour contrast (76 features). `--cnn` adds ResNet-50 embeddings.
 
-## Before submitting
+## Robustness check (missing-data shortcut)
 
-- The literature numbers in `src/report.py` (`RELATED_WORK`) come from search-result abstracts.
-  **Check each one against the original paper.** The Pacheco & Krohling (2020) baseline row needs
-  its numbers filled in.
-- Runtime on the real 2,298 images has not been measured yet. My estimate is tens of minutes on a
-  laptop; feature extraction, backward SFS and non-metric MDS are the slowest steps. Use `--fast`
-  to iterate.
+All 804 images whose patient questionnaire is blank are **non-cancer** (ACK, NEV, SEK), so the
+missingness pattern itself predicts "not cancer". `robustness_check.py` measures how much of the
+score comes from that by re-running clinical-only, image-only and fused models on the 1,494
+images with a complete questionnaire:
+
+```bash
+python robustness_check.py          # after run_pipeline.py; writes rob_* figures and tables
+```
+
+Logistic Regression, test balanced accuracy: clinical 0.720 → 0.592, image 0.416 → 0.326,
+fusion 0.706 → 0.560 (full data → complete records only).
+
+## Running without the image files
+
+The hand-crafted image features are cached in `outputs/cache/image_features.csv`, so the whole
+pipeline also runs with only `metadata.csv` in `data/pad-ufes-20/`:
+
+```bash
+python run_pipeline.py --no-images
+```
+
+Only the sample-image figure (`eda_09`) is skipped. A full run took about 28 minutes on a laptop;
+non-metric MDS and the metaheuristic feature selection are the slowest steps.
+
+## Notes
+
+- The related-work numbers in `src/report.py` were checked against each paper (November 2026).
+- The metaheuristics are stochastic: Simulated Annealing can return a slightly different subset
+  on another machine. The GA subset, the chosen model and every model metric reproduce exactly.

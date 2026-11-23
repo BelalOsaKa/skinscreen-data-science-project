@@ -1,0 +1,25 @@
+data,features,model,train images,test images,CV balanced acc,test accuracy,test balanced acc,test F1 (macro),test ROC-AUC (OvR macro),test cancer sensitivity,test cancer specificity
+A. Full dataset,Clinical only,Logistic Regression,1838,460,0.6605,0.6587,0.7196,0.628,0.9116,0.9083,0.814
+A. Full dataset,Clinical only,SVM (RBF),1838,460,0.5813,0.7348,0.6271,0.6539,0.9131,0.9083,0.8554
+A. Full dataset,Clinical only,Random Forest,1838,460,0.553,0.6978,0.5712,0.5774,0.9113,0.9495,0.7851
+A. Full dataset,Clinical only,Hist Gradient Boosting,1838,460,0.6206,0.687,0.6012,0.5949,0.9041,0.8899,0.843
+A. Full dataset,Image only,Logistic Regression,1838,460,0.4916,0.4652,0.4161,0.3909,0.7837,0.6606,0.7727
+A. Full dataset,Image only,SVM (RBF),1838,460,0.4344,0.5891,0.3956,0.3866,0.811,0.711,0.7769
+A. Full dataset,Image only,Random Forest,1838,460,0.4308,0.5652,0.3581,0.3527,0.7954,0.6743,0.7521
+A. Full dataset,Image only,Hist Gradient Boosting,1838,460,0.429,0.5935,0.4315,0.4381,0.8247,0.7064,0.7851
+A. Full dataset,Fusion (clinical + image),Logistic Regression,1838,460,0.6897,0.6913,0.7064,0.6735,0.9271,0.9128,0.8554
+A. Full dataset,Fusion (clinical + image),SVM (RBF),1838,460,0.592,0.7217,0.5503,0.5627,0.9166,0.8761,0.8678
+A. Full dataset,Fusion (clinical + image),Random Forest,1838,460,0.5364,0.6609,0.4624,0.4733,0.8954,0.9679,0.7438
+A. Full dataset,Fusion (clinical + image),Hist Gradient Boosting,1838,460,0.6494,0.7543,0.6722,0.6975,0.935,0.9174,0.8636
+B. Complete-metadata subset,Clinical only,Logistic Regression,1186,308,0.5838,0.5422,0.5924,0.4721,0.844,0.7569,0.7111
+B. Complete-metadata subset,Clinical only,SVM (RBF),1186,308,0.4683,0.6071,0.4005,0.4058,0.8455,0.8807,0.4889
+B. Complete-metadata subset,Clinical only,Random Forest,1186,308,0.4568,0.6461,0.4668,0.4499,0.8176,0.8991,0.5778
+B. Complete-metadata subset,Clinical only,Hist Gradient Boosting,1186,308,0.4951,0.5974,0.475,0.4614,0.8364,0.8394,0.5667
+B. Complete-metadata subset,Image only,Logistic Regression,1186,308,0.4358,0.3734,0.3259,0.2735,0.6908,0.6422,0.5556
+B. Complete-metadata subset,Image only,SVM (RBF),1186,308,0.4087,0.5779,0.2925,0.2611,0.7545,0.867,0.3667
+B. Complete-metadata subset,Image only,Random Forest,1186,308,0.3438,0.5942,0.3274,0.3203,0.752,0.867,0.3667
+B. Complete-metadata subset,Image only,Hist Gradient Boosting,1186,308,0.3858,0.5747,0.4053,0.3935,0.7596,0.789,0.5667
+B. Complete-metadata subset,Fusion (clinical + image),Logistic Regression,1186,308,0.5442,0.5844,0.5597,0.5097,0.8505,0.789,0.7222
+B. Complete-metadata subset,Fusion (clinical + image),SVM (RBF),1186,308,0.4558,0.6558,0.42,0.414,0.8435,0.8716,0.5889
+B. Complete-metadata subset,Fusion (clinical + image),Random Forest,1186,308,0.4125,0.6526,0.3899,0.3962,0.8116,0.9495,0.4667
+B. Complete-metadata subset,Fusion (clinical + image),Hist Gradient Boosting,1186,308,0.5402,0.6883,0.5537,0.5617,0.8677,0.8761,0.6556
